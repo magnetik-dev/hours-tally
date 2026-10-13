@@ -189,16 +189,20 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     document.getElementById("decimal").textContent = (minutes / 60).toFixed(2);
     document.getElementById("mins").textContent = minutes.toLocaleString();
     document.getElementById("count").textContent = count;
+    let savedOk = false;
+    try { localStorage.setItem(KEY, JSON.stringify(store)); savedOk = true; } catch (e) {}
+    const stamp = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
     noteEl.textContent = bad
       ? "Use whole, positive numbers. Highlighted fields aren't counted."
-      : "Minutes over 59 roll into hours automatically.";
-    noteEl.classList.toggle("warn", bad);
+      : savedOk
+        ? "Saved on this device at " + stamp + "."
+        : "This browser isn't allowing saves, so entries will clear when you close the page.";
+    noteEl.classList.toggle("warn", bad || !savedOk);
     if (minutes !== last && last !== -1) {
       totalEl.classList.add("bump");
       setTimeout(() => totalEl.classList.remove("bump"), 150);
     }
     last = minutes;
-    try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {}
   }
 
   rowsEl.addEventListener("input", update);
